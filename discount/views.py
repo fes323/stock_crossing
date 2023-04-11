@@ -8,7 +8,7 @@ from .models import DiscountData
 def discountList(request):
     # discounts = DiscountData.objects.all()
     now = timezone.now()
-    discounts = DiscountData.objects.filter(startDate__lte=timezone.now()).order_by('-startDate')
+    discounts = DiscountData.objects.filter(startDate__gte=timezone.now()).order_by('startDate')
     context = {
         'discounts' : discounts
     }
@@ -22,9 +22,12 @@ def mainPage(request):
 
 def statistics(request):
     discountCounter = DiscountData.objects.all().count()
-    discountCounterInCurrentWeek = DiscountData.objects.filter()
+    futureDiscount = DiscountData.objects.filter(startDate__gte=timezone.now()).order_by('startDate').count()
+    oldDiscount = DiscountData.objects.filter(startDate__lte=timezone.now()).order_by('-startDate').count()
     
     context = {
         "discountCounter" : discountCounter,
+        'futureDiscount' : futureDiscount,
+        'oldDiscount' : oldDiscount,
     }
     return render(request, 'statistics.html', context=context)

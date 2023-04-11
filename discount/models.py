@@ -1,5 +1,6 @@
 from django.db import models
 from shops.models import ShopManagers, Shop
+from django.urls import reverse
 
 
 class DiscountData(models.Model):
@@ -12,9 +13,18 @@ class DiscountData(models.Model):
     shops = models.ManyToManyField(Shop)
     files = models.FileField(blank=True, verbose_name='Файлы', )
     createDate = models.DateTimeField(null=True, auto_now_add=True, editable=False)
-
+    isDone = models.BooleanField(default=False, verbose_name='Подготовлена')
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name="URL", default='reset')
+    
+    def createSlug(self):
+        if self.slug =='reset':
+            self.slug = self.title
+            
     def __str__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        return reverse("title", args=[str(self.id)])
 
     class Meta:
         verbose_name = 'Акция'
