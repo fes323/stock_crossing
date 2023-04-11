@@ -1,8 +1,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mt-5">Список акций: </h1>
+<div class="container mt-5">
+  
+    <h1>Список акций: </h1>
+
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        {% url 'discountList' as url_discountList %}
+        <a class="nav-link {% if url_discountList == request.path %}active{% endif %}" aria-current="page" href="{{ url_discountList }}">Будущие акции</a>
+      </li>
+      <li class="nav-item">
+        {% url 'discountListOld' as url_discountListOld %}
+        <a class="nav-link {% if url_discurl_discountListOldountList == request.path %}active{% endif %}" href="{{ url_discountListOld }}">Прошедшие</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Просроченные</a>
+      </li>
+    </ul>
 
     {% for discount in discounts %}
     <div class="list-group mt-1">

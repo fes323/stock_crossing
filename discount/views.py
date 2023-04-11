@@ -6,12 +6,15 @@ from .models import DiscountData
 
 
 def discountList(request):
-    # discounts = DiscountData.objects.all()
-    now = timezone.now()
-    discounts = DiscountData.objects.filter(startDate__gte=timezone.now()).order_by('startDate')
+    if request.path == '/discountList':
+        discounts = DiscountData.objects.filter(startDate__gte=timezone.now()).order_by('startDate')
+    elif request.path == '/discountListOld':
+        discounts = DiscountData.objects.filter(startDate__lte=timezone.now()).order_by('-startDate')
+        
     context = {
         'discounts' : discounts
     }
+    
     return render(request, template_name='discount_list.html', context=context)
 
 def mainPage(request):
