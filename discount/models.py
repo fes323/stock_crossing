@@ -11,6 +11,7 @@ class DiscountData(models.Model):
     manager = models.ManyToManyField(ShopManagers)
     shops = models.ManyToManyField(Shop)
     files = models.FileField(blank=True, verbose_name='Файлы', )
+    createDate = models.DateTimeField(null=True, auto_now_add=True, editable=False)
 
     def __str__(self):
         return self.title

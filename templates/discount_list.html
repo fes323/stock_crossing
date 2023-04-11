@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Список акций: </h1>
+
+    {% for discount in upcoming %}
+    <div class="list-group mt-1">
+        <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+            <div class="d-flex w-100 justify-content-between">
+              <h5 class="mb-1">{{ discount.title }}</h5>
+              <small>Create date:<br> {{ discount.createDate }}</small>
+            </div>
+            <p class="mb-1">Shops: {{ discount.shops }}</p>
+            <small>Start date: {{ discount.startDate }}</small>
+            <small>| End date: {{ discount.endDate }}</small>
+          </a>
+    </div>  
+    {% endfor %}
+  
+</div>
+{% endblock %}
