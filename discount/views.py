@@ -17,6 +17,12 @@ def discountList(request):
     
     return render(request, template_name='discount_list.html', context=context)
 
+def discountDetail(request, discount_slug):
+    context = {
+        'discount' : DiscountData.objects.get(slug=discount_slug)
+    }
+    return render(request, template_name='discount_card.html', context=context)
+
 def mainPage(request):
     context = {
         
