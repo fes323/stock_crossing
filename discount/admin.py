@@ -15,11 +15,4 @@ class DiscountDataAdmin(admin.ModelAdmin):
     ]
     prepopulated_fields = {"slug": ("title",)}
     form = ManagersForm
-    
-    def save(isDone, isDoneDate):
-        if isDoneDate == '2000-01-01':
-            pass
-        else:
-            isDone = True
-        super.save(isDone, isDoneDate)
         

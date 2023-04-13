@@ -21,9 +21,8 @@
                 <a class="nav-link {% if url_statistics == request.path %}active{% endif %}" aria-current="page" href="/statistics">statistics</a>
                     {% url 'discountList' as url_discountList %}
                     {% url 'discountListOld' as url_discountListOld %}
-                <a class="nav-link {% if url_discountList or url_discountListOld == request.path %}active{% endif %}" href="/discountList">discount list</a>
-                <!-- <a class="nav-link" href="#">Discount crossing</a> -->
-                <!-- <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a> -->
+                    {% url 'discountListCurrent'  as url_discountListCurrent %}
+                <a class="nav-link {% if url_discountList == request.path or url_discountListOld == request.path or url_discountListCurrent == request.path %}active{% endif %}" href="/discountList">discount list</a>
                 </div>
                 
             </div>

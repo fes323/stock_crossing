@@ -1,7 +1,20 @@
 from django.db import models
 from shops.models import ShopManagers, Shop
+from datetime import datetime
+            
+     
+def update_discount_counters():
+        now = datetime.now()
+        for shop in Shop.objects.all():
+            future_discounts = DiscountData.objects.filter(shops=shop, startDate__gt=now).count()
+            past_discounts = DiscountData.objects.filter(shops=shop, endDate__lt=now).count()
+            current_discounts = DiscountData.objects.filter(shops=shop, startDate__lte=now, endDate__gte=now).count()
+            shop.countFutureDiscount = future_discounts
+            shop.countPastDiscount = past_discounts
+            shop.CountCurrentDiscount = current_discounts
+            shop.save()    
 
-                
+                   
 class DiscountData(models.Model):
     title = models.CharField(max_length=250, null=True, verbose_name='Название скидки')
     id_DO = models.IntegerField(blank=True, default=None, verbose_name='ID акции в ДО')
@@ -18,7 +31,12 @@ class DiscountData(models.Model):
       
     def __str__(self):
         return self.title
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        update_discount_counters()
 
     class Meta:
         verbose_name = 'Акция'
         verbose_name_plural = 'Акции'
+

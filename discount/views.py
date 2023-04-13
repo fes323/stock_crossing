@@ -7,7 +7,6 @@ from shops.models import Shop
 
 def discountList(request, shop_id=None):
     shopsList = Shop.objects.all().order_by('title')
-    shopCounter = 0
     
     discountCurrent = DiscountData.objects.filter(startDate__lte=timezone.now()).filter(endDate__gte=timezone.now()).order_by('-startDate')
     discountsOld = DiscountData.objects.filter(startDate__lte=timezone.now()).filter(endDate__lte=timezone.now()).order_by('-startDate')
@@ -46,7 +45,6 @@ def discountList(request, shop_id=None):
         'counterOLd' : discountCounterOld,
         'counterCurrent' : discountCounterCurrent,
         'shopListItem' : shopsList,
-        'shopCounter' : shopCounter,
     }
     
     return render(request, template_name='discount_list.html', context=context)

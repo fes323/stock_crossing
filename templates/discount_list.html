@@ -6,9 +6,7 @@
 {% url 'discountListOld' as url_discountListOld %}
 {% url 'discountListCurrent' as url_discountListCurrent %}
 
-{% url '/discountList/filter/<shop_id>' as url_filter %}
-{% url '/discountListOld/filter/<shop_id>' as url_filter %}
-{% url '/discountListCurrent/filter/<shop_id>' as url_filter %}
+
 
 <div class="container mt-5">
   
@@ -16,11 +14,7 @@
 
     <ul class="nav nav-tabs mt-4">
       <li class="nav-item">
-        <a class="nav-link link-dark {% if url_discountList == request.path %}active{% endif %}" aria-current="page" 
-        href="
-        {% if discountList == request.path %}{{ url_discountList }}{% endif %}
-        {% if url_filter in request.path %}{{ url_filter }}{% endif %}
-        ">Будущие акции ({{ counter }})</a>
+        <a class="nav-link link-dark {% if url_discountList == request.path %}active{% endif %}" aria-current="page" href="{{ url_discountList }}">Будущие акции ({{ counter }})</a>
       </li>
       <li class="nav-item">
         <a class="nav-link link-dark {% if url_discountListOld == request.path %}active{% endif %}" 
@@ -62,6 +56,16 @@
               {% if url_discountList == request.path %}{{ shop.countFutureDiscount }}{% endif %}
               {% if url_discountListOld == request.path %}{{ shop.countPastDiscount }}{% endif %}
               {% if url_discountListCurrent == request.path %}{{ shop.CountCurrentDiscount }}{% endif %}
+
+
+              {% url 'discountList/filter/' shop.id as url_filter_discountList %}
+              {% if url_filter_discountList == request.path %}{{ shop.countFutureDiscount }}{% endif %}
+
+              {% url 'discountListOld/filter/' shop.id as url_filter_discountListOld %}
+              {% if url_filter_discountListOld == request.path %}{{ shop.countPastDiscount }}{% endif %}
+
+              {% url 'discountListCurrent/filter/' shop.id as url_filter_discountListCurrent %}
+              {% if url_filter_discountListCurrent == request.path %}{{ shop.CountCurrentDiscount }}{% endif %}
               )
             </a>
           </li>
