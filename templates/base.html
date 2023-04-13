@@ -17,8 +17,11 @@
             </button>
             <div class="d-flex flex-row-reverse collapse navbar-collapse me-5" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                <a class="nav-link active" aria-current="page" href="/statistics">statistics</a>
-                <a class="nav-link" href="/discountList">discount list</a>
+                    {% url 'statistics' as url_statistics %}
+                <a class="nav-link {% if url_statistics == request.path %}active{% endif %}" aria-current="page" href="/statistics">statistics</a>
+                    {% url 'discountList' as url_discountList %}
+                    {% url 'discountListOld' as url_discountListOld %}
+                <a class="nav-link {% if url_discountList or url_discountListOld == request.path %}active{% endif %}" href="/discountList">discount list</a>
                 <!-- <a class="nav-link" href="#">Discount crossing</a> -->
                 <!-- <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a> -->
                 </div>

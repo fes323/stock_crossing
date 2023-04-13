@@ -16,6 +16,9 @@ class ShopManagers(models.Model):
 class Shop(models.Model):
     title = models.CharField(max_length=250, null=True, verbose_name='Наименование магазина')
     manager = models.ManyToManyField(ShopManagers)
+    countFutureDiscount = models.IntegerField(default=0, verbose_name='Количество будущих акций')
+    countPastDiscount = models.IntegerField(default=0, verbose_name='Количество прошедших акций')
+    CountCurrentDiscount = models.IntegerField(default=0, verbose_name='Количество текущих акций')
 
     def __str__(self):
         return self.title

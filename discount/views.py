@@ -1,21 +1,56 @@
 from datetime import *
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.utils import timezone
 from .models import DiscountData
-# from shops import ShopManagers, Shop
+from shops.models import Shop
 
 
-def discountList(request):
+def discountList(request, shop_id=None):
+    shopsList = Shop.objects.all().order_by('title')
+    shopCounter = 0
+    
+    discountCurrent = DiscountData.objects.filter(startDate__lte=timezone.now()).filter(endDate__gte=timezone.now()).order_by('-startDate')
+    discountsOld = DiscountData.objects.filter(startDate__lte=timezone.now()).filter(endDate__lte=timezone.now()).order_by('-startDate')
+    discountsFuture = DiscountData.objects.filter(startDate__gte=timezone.now()).order_by('startDate')
+    
+    discountCounter = discountsFuture.count()
+    discountCounterOld = discountsOld.count()
+    discountCounterCurrent = discountCurrent.count()
+    
     if request.path == '/discountList':
-        discounts = DiscountData.objects.filter(startDate__gte=timezone.now()).order_by('startDate')
+        discounts = discountsFuture
+        
     elif request.path == '/discountListOld':
-        discounts = DiscountData.objects.filter(startDate__lte=timezone.now()).order_by('-startDate')
+        discounts = discountsOld
+        
+    elif request.path == '/discountListCurrent':
+        discounts = discountCurrent
+        
+    elif 'discountList/filter/' in request.path:
+        discountCurrent = DiscountData.objects.filter(startDate__lte=timezone.now()).filter(shops__exact=shop_id).filter(endDate__gte=timezone.now()).order_by('-startDate')
+        discountsOld = DiscountData.objects.filter(startDate__lte=timezone.now()).filter(shops__exact=shop_id).filter(endDate__lte=timezone.now()).order_by('-startDate')
+        discountsFuture = DiscountData.objects.filter(startDate__gte=timezone.now()).filter(shops__exact=shop_id).order_by('startDate')
+        
+        discountCounter = discountsFuture.count()
+        discountCounterOld = discountsOld.count()
+        discountCounterCurrent = discountCurrent.count()
+        
+        discounts = DiscountData.objects.filter(shops__exact=shop_id)
+        
+    else:
+        return redirect('discountList')
         
     context = {
-        'discounts' : discounts
+        'discounts' : discounts,
+        'counter' : discountCounter,
+        'counterOLd' : discountCounterOld,
+        'counterCurrent' : discountCounterCurrent,
+        'shopListItem' : shopsList,
+        'shopCounter' : shopCounter,
     }
     
     return render(request, template_name='discount_list.html', context=context)
+
 
 def discountDetail(request, discount_slug):
     context = {
@@ -23,11 +58,25 @@ def discountDetail(request, discount_slug):
     }
     return render(request, template_name='discount_card.html', context=context)
 
+
+def deleteDiscount(request, discount_slug):
+    try:
+        discount = DiscountData.objects.get(slug=discount_slug)
+        discount.delete()
+        context = {
+            'discounts' : DiscountData.objects.filter(startDate__gte=timezone.now()).order_by('startDate')
+        }
+        return render(request, template_name='discount_list.html', context=context)
+    except DiscountData.DoesNotExist:
+        return redirect('discountList')
+    
+
 def mainPage(request):
     context = {
         
     }
     return render(request, template_name='main_page.html', context=context)
+
 
 def statistics(request):
     discountCounter = DiscountData.objects.all().count()
