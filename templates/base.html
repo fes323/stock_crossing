@@ -7,7 +7,7 @@
 
 </head>
 <body>
-    <div class="container">
+    <div class="container-xxl">
         <div class="row">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
@@ -19,20 +19,21 @@
                 <div class="navbar-nav">
                     {% url 'statistics' as url_statistics %}
                 <a class="nav-link {% if url_statistics == request.path %}active{% endif %}" aria-current="page" href="/statistics">statistics</a>
+                    {% url 'calandary' as url_calandary %}
+                <a class="nav-link {% if url_calandary == request.path %}active{% endif %}" aria-current="page" href="/calandary">calandary</a>
                     {% url 'discountList' as url_discountList %}
-                    {% url 'discountListOld' as url_discountListOld %}
-                    {% url 'discountListCurrent'  as url_discountListCurrent %}
-                <a class="nav-link {% if url_discountList == request.path or url_discountListOld == request.path or url_discountListCurrent == request.path %}active{% endif %}" href="/discountList">discount list</a>
+                    {% url 'OldDiscountList' as url_discountListOld %}
+                    {% url 'CurrentDiscountList'  as url_discountListCurrent %}
+                <a class="nav-link {% if url_discountList in request.path or url_discountListOld in request.path or url_discountListCurrent in request.path %}active{% endif %}" href="/discountList">discount list</a>
                 </div>
                 
             </div>
             <button type="button" class="btn btn-light">Discount crossing</button>
             </div>
-        </div>
+            </div>
         </nav>
-        <div class="row">
-            {% block content %}{% endblock %}
-        </div>
+            {% block content %}
+            {% endblock %}
     </div>
     
 

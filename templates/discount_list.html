@@ -2,77 +2,66 @@
 
 {% block content %}
 
-{% url 'discountList' as url_discountList %}
-{% url 'discountListOld' as url_discountListOld %}
-{% url 'discountListCurrent' as url_discountListCurrent %}
 
-
-
-<div class="container mt-5">
-  
-    <h1>Список акций</h1>
-
-    <ul class="nav nav-tabs mt-4">
-      <li class="nav-item">
-        <a class="nav-link link-dark {% if url_discountList == request.path %}active{% endif %}" aria-current="page" href="{{ url_discountList }}">Будущие акции ({{ counter }})</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link link-dark {% if url_discountListOld == request.path %}active{% endif %}" 
-        href="{{ url_discountListOld }}">Прошедшие ({{ counterOLd }})</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link link-dark {% if url_discountListCurrent == request.path %}active{% endif %}" 
-        href="discountListCurrent">Действующие акции ({{ counterCurrent }})</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link disabled link-dark" href="#">Просроченные</a>
-      </li>
-    </ul>
-    <div class="row">
-    <div class="col-9">
-      {% for discount in discounts %}
-      <div class="list-group mt-1">
-          <a href="/discountList/{{ discount.slug }}" class="list-group-item list-group-item-action" aria-current="true">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1">{{ discount.title }}</h5>
-              <small>Create date:<br> {{ discount.createDate }}</small>
-            </div>
-            <p class="mb-1">Shops: {% for shop in discount.shops.all %}{{ shop }},  {% endfor %}</p>
-            <p class="mb-1">Manager: {% for manager in discount.manager.all %}{{ manager }},  {% endfor %}</p>
-            <small>Start date: {{ discount.startDate }}</small>
-            <small>| End date: {{ discount.endDate }}</small>
-          </a>
-      </div>  
-      {% endfor %}
-    </div>
-
-    <div class="col-3 mt-1">
-      <h6>Выбор сети салонов</h6>
-      <ul class="list-group">
-        {% for shop in shopListItem %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a class="link-dark" style="text-decoration: none;" href="/discountList/filter/{{ shop.id }}">{{ shop.title }} 
-              (
-              {% if url_discountList == request.path %}{{ shop.countFutureDiscount }}{% endif %}
-              {% if url_discountListOld == request.path %}{{ shop.countPastDiscount }}{% endif %}
-              {% if url_discountListCurrent == request.path %}{{ shop.CountCurrentDiscount }}{% endif %}
-
-
-              {% url 'discountList/filter/' shop.id as url_filter_discountList %}
-              {% if url_filter_discountList == request.path %}{{ shop.countFutureDiscount }}{% endif %}
-
-              {% url 'discountListOld/filter/' shop.id as url_filter_discountListOld %}
-              {% if url_filter_discountListOld == request.path %}{{ shop.countPastDiscount }}{% endif %}
-
-              {% url 'discountListCurrent/filter/' shop.id as url_filter_discountListCurrent %}
-              {% if url_filter_discountListCurrent == request.path %}{{ shop.CountCurrentDiscount }}{% endif %}
-              )
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-    </div>
-  
+<h1 class="mt-5">Список акций</h1>
+<div class="container">
+<div class="row">
+<ul class="nav nav-tabs mt-5">
+  <li class="nav-item">
+    {% url 'discountList' as url_discountList %}
+    <a class="nav-link link-dark {% if url_discountList in request.path %}active{% endif %}" aria-current="page" 
+    href="/discountList">Будущие акции ({{ counter }})</a>
+  </li>
+  <li class="nav-item">
+    {% url 'OldDiscountList' as url_OldDiscountList %}
+    <a class="nav-link link-dark {% if url_OldDiscountList in request.path %}active{% endif %}" 
+    href="/OldDiscountList">Прошедшие ({{ counterOLd }})</a>
+  </li>
+  <li class="nav-item">
+    {% url 'CurrentDiscountList' as url_CurrentDiscountList %}
+    <a class="nav-link link-dark {% if url_CurrentDiscountList in request.path %}active{% endif %}" 
+    href="/CurrentDiscountList">Действующие акции ({{ counterCurrent }})</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link disabled link-dark" href="#">Просроченные</a>
+  </li>
+</ul>
 </div>
+</div>
+<div class="row">
+<div class="col-9">
+  {% for discount in discounts %}
+  <div class="list-group mt-1">
+      <a href="/discountList/{{ discount.slug }}" class="list-group-item list-group-item-action" aria-current="true">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{ discount.title }}</h5>
+          <small>Create date:<br> {{ discount.createDate }}</small>
+        </div>
+        <p class="mb-1">Shops: {% for shop in discount.shops.all %}{{ shop }},  {% endfor %}</p>
+        <p class="mb-1">Manager: {% for manager in discount.manager.all %}{{ manager }},  {% endfor %}</p>
+        <small>Start date: {{ discount.startDate }}</small>
+        <small>| End date: {{ discount.endDate }}</small>
+      </a>
+  </div>  
+  {% endfor %}
+</div>
+
+<div class="col-3 mt-1">
+  <h6>Выбор сети салонов</h6>
+  <ul class="list-group">
+    {% for shop in shopListItem %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <a class="link-dark" style="text-decoration: none;" href="/filter/discountList/{{ shop.id }}">{{ shop.title }} 
+          (
+          {% if url_discountList in request.path %}{{ shop.countFutureDiscount }}{% endif %}
+          {% if url_OldDiscountList in request.path %}{{ shop.countPastDiscount }}{% endif %}
+          {% if url_CurrentDiscountList in request.path %}{{ shop.CountCurrentDiscount }}{% endif %}
+          )
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+
+
 {% endblock %}
