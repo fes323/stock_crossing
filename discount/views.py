@@ -5,9 +5,37 @@ from django.views.generic import TemplateView, ListView
 from django.db.models import Q
 
 from .models import DiscountData
-from shops.models import Shop
-from datetime import datetime
+from shops.models import Shop, ShopManagers
+from datetime import datetime, timedelta
 
+
+def startTomorrow(request):
+    now = datetime.now().date()
+    end_date = now + timedelta(days=1)
+    
+    discounts = DiscountData.objects.filter(startDate__range=[now, end_date])
+    
+    page_obj = discounts
+    
+    context = {
+        'discounts' : discounts,
+        'page_obj' : page_obj,
+    }
+    return render(request, template_name='discount_list.html', context=context)
+
+def startWithinAWeek(request):
+    now = datetime.now().date()
+    end_date = now + timedelta(days=7)
+    
+    discounts = DiscountData.objects.filter(startDate__range=[now, end_date])
+    
+    page_obj = discounts
+    
+    context = {
+        'discounts' : discounts,
+        'page_obj' : page_obj,
+    }
+    return render(request, template_name='discount_list.html', context=context)
 
 def searchDiscount(request):
     query = request.GET.get('q')
@@ -100,8 +128,12 @@ def discountListFilter(request, shop_id):
 
 
 def discountDetail(request, discount_slug):
+    managers = ShopManagers.objects.all()
+    shops = Shop.objects.all()
     context = {
-        'discount' : DiscountData.objects.get(slug=discount_slug)
+        'discount' : DiscountData.objects.get(slug=discount_slug),
+        'managers' : managers,
+        'shops' : shops,
     }
     return render(request, template_name='discount_card.html', context=context)
 

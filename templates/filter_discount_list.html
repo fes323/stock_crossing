@@ -3,6 +3,10 @@
 {% block content %}
 <div class="p-3 bg-light" style="width: 100%;">
     <h2 class="">Список акций в сети {{ currentShop.title }}</h2>
+    <form class="form-inline my-2 my-lg-0 d-flex" action="{% url 'search_results' %}" method="get">
+      <input name="q" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
     <ul class="nav nav-tabs mt-2">
       <li class="nav-item">
         {% url 'discountList' as url_discountList %}
@@ -29,6 +33,7 @@
         <a class="nav-link disabled link-dark" href="#">Просроченные</a>
       </li>
     </ul>
+    <div class="content" style="min-height: 79vh;">
     <div class="row">
     <div class="col-9">
       {% for discount in discounts %}
@@ -66,7 +71,8 @@
       </ul>
     </div>
     </div>
-    <nav aria-label="..." class="mt-3" style="position: absolute; bottom: 0;">
+  </div>
+    <nav aria-label="..." class="mt-3" style="bottom: 0;">
       <ul class="pagination">
         <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
           {% if page_obj.has_previous %}
