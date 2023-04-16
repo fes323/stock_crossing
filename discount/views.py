@@ -1,17 +1,34 @@
-from datetime import *
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.core.paginator import Paginator
+from django.views.generic import TemplateView, ListView
+from django.db.models import Q
+
 from .models import DiscountData
 from shops.models import Shop
 from datetime import datetime
 
 
+def searchDiscount(request):
+    query = request.GET.get('q')
+    discounts = DiscountData.objects.filter(
+        Q(title__icontains=query) | Q(id_DO__icontains=query)
+    )
+    print(discounts)
+    page_obj = discounts
+    
+    context = {
+        'discounts' : discounts,
+        'page_obj' : page_obj,
+    }
+    return render(request, template_name='discount_list.html', context=context)
+
 def discountList(request, shop_id=None):
     now = datetime.now()
     shopsList = Shop.objects.all().order_by('title')
     
-    discountCurrent = DiscountData.objects.filter(startDate__lte=now).filter(endDate__gte=timezone.now()).order_by('-startDate')
-    discountsOld = DiscountData.objects.filter(startDate__lte=now).filter(endDate__lte=timezone.now()).order_by('-startDate')
+    discountCurrent = DiscountData.objects.filter(startDate__lte=now).filter(endDate__gte=now).order_by('-startDate')
+    discountsOld = DiscountData.objects.filter(startDate__lte=now).filter(endDate__lte=now).order_by('-startDate')
     discountsFuture = DiscountData.objects.filter(startDate__gte=now).order_by('startDate')
     
     discountCounter = discountsFuture.count()
@@ -20,19 +37,22 @@ def discountList(request, shop_id=None):
     
     if request.path == '/discountList':
         discounts = discountsFuture
-        
     elif request.path == '/OldDiscountList':
         discounts = discountsOld
-        
     elif request.path == '/CurrentDiscountList':
         discounts = discountCurrent
-        
+    
+    paginator = Paginator(discounts, 7)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     context = {
         'discounts' : discounts,
         'counter' : discountCounter,
         'counterOLd' : discountCounterOld,
         'counterCurrent' : discountCounterCurrent,
         'shopListItem' : shopsList,
+        'page_obj' : page_obj,
     }
     
     return render(request, template_name='discount_list.html', context=context)
@@ -44,9 +64,9 @@ def discountListFilter(request, shop_id):
     
     currentShop = Shop.objects.get(id=shop_id)
 
-    discountCurrent = DiscountData.objects.filter(startDate__lte=timezone.now()).filter(shops__exact=shop_id).filter(endDate__gte=timezone.now()).order_by('-startDate')
-    discountsOld = DiscountData.objects.filter(startDate__lte=timezone.now()).filter(shops__exact=shop_id).filter(endDate__lte=timezone.now()).order_by('-startDate')
-    discountsFuture = DiscountData.objects.filter(startDate__gte=timezone.now()).filter(shops__exact=shop_id).order_by('startDate')
+    discountCurrent = DiscountData.objects.filter(startDate__lte=now).filter(shops__exact=shop_id).filter(endDate__gte=now).order_by('-startDate')
+    discountsOld = DiscountData.objects.filter(startDate__lte=now).filter(shops__exact=shop_id).filter(endDate__lte=now).order_by('-startDate')
+    discountsFuture = DiscountData.objects.filter(startDate__gte=now).filter(shops__exact=shop_id).order_by('startDate')
     
     discountCounter = discountsFuture.count()
     discountCounterOld = discountsOld.count()
@@ -54,14 +74,16 @@ def discountListFilter(request, shop_id):
     
     if '/discountList' in request.path:
         discounts = discountsFuture
-        
     elif '/OldDiscountList' in request.path:
         discounts = discountsOld
-        
     elif '/CurrentDiscountList' in request.path:
         discounts = discountCurrent
     
     id_shop = shop_id
+    
+    paginator = Paginator(discounts, 7)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     
     context = {
         'discounts' : discounts,
@@ -71,6 +93,7 @@ def discountListFilter(request, shop_id):
         'shopListItem' : shopsList,
         'shop_id' : id_shop,
         'currentShop' : currentShop,
+        'page_obj' : page_obj,
     }
     
     return render(request, template_name='filter_discount_list.html', context=context)

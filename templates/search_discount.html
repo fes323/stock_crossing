@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+<div class="row">
+<div class="d-flex">
+{% for discount in discounts %}
+    {{ discount.title }}
+{% endfor %}
+</div>
+</div>

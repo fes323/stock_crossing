@@ -4,10 +4,11 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.mainPage),
+    path('home', views.mainPage, name='home'),
     path('discountList', views.discountList, name='discountList'),
     path('OldDiscountList', views.discountList, name='OldDiscountList'),
     path('CurrentDiscountList', views.discountList, name='CurrentDiscountList'),
+    path('search/', views.searchDiscount, name='search_results'),
     path('filter/discountList/<shop_id>/', views.discountListFilter, name='discountListFilterOnShop'),
     path('filter/OldDiscountList/<shop_id>/', views.discountListFilter, name='discountListFilterOnShop'),
     path('filter/CurrentDiscountList/<shop_id>/', views.discountListFilter, name='discountListFilterOnShop'),

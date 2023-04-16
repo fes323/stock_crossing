@@ -2,3 +2,7 @@ venv/
 .idea/
 __pycahe__/
 /__pycahe__/
+Discount_Monitoring/__pycache__/
+calandary/__pycache__/
+discount/__pycache__/
+shops/__pycache__/
