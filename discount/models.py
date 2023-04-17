@@ -13,6 +13,14 @@ def update_discount_counters():
             shop.countPastDiscount = past_discounts
             shop.CountCurrentDiscount = current_discounts
             shop.save()    
+        for manager in ShopManagers.objects.all():
+            future_discounts = DiscountData.objects.filter(manager=manager, startDate__gt=now).count()
+            past_discounts = DiscountData.objects.filter(manager=manager, endDate__lt=now).count()
+            current_discounts = DiscountData.objects.filter(manager=manager, startDate__lte=now, endDate__gte=now).count()
+            manager.countFutureDiscount = future_discounts
+            manager.countPastDiscount = past_discounts
+            manager.CountCurrentDiscount = current_discounts
+            manager.save()    
 
                    
 class DiscountData(models.Model):

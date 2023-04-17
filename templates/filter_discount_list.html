@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="p-3 bg-light" style="width: 100%;">
-    <h2 class="">Список акций в сети {{ currentShop.title }}</h2>
+    {% if '/manager/' in request.path%}<h2 class="">Список акций от менеджера {{ currentManager.name }}</h2>{% else %}<h2 class="">Список акций в сети {{ currentShop.title }}</h2>{% endif %}
     <form class="form-inline my-2 my-lg-0 d-flex" action="{% url 'search_results' %}" method="get">
       <input name="q" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
@@ -10,24 +10,27 @@
     <ul class="nav nav-tabs mt-2">
       <li class="nav-item">
         {% url 'discountList' as url_discountList %}
+        {% url '/filter/discountList/manager/' as url_manager_discountList %}
         <a class="nav-link link-dark
-        {% if counter == 0%} disabled{% endif %}
+        {% if counter == 0 %} disabled{% endif %}
         {% if url_discountList in request.path %} active{% endif %}" aria-current="page" 
-        href="/filter/discountList/{{ shop_id }}/">Будущие акции ({{ counter }})</a>
+        {% if url_manager_discountList in request.path %}href="/filter/discountList/manager/{{ id_manager }}/"{% else %}href="/filter/discountList/{{ shop_id }}/"{% endif %}>Будущие акции ({{ counter }})</a>
       </li>
       <li class="nav-item">
         {% url 'OldDiscountList' as url_OldDiscountList %}
+        {% url '/filter/OldDiscountList/manager/' as url_manager_OldDiscountList %}
         <a class="nav-link link-dark
-        {% if counterOLd == 0%} disabled{% endif %}
+        {% if counterOLd == 0 %} disabled{% endif %}
         {% if url_OldDiscountList in request.path %} active{% endif %}" 
-        href="/filter/OldDiscountList/{{ shop_id }}/">Прошедшие ({{ counterOLd }})</a>
+        {% if url_manager_OldDiscountList in request.path %}href="/filter/OldDiscountList/manager/{{ id_manager }}/"{% else %}href="/filter/OldDiscountList/{{ shop_id }}/"{% endif %}>Прошедшие ({{ counterOLd }})</a>
       </li>
       <li class="nav-item">
         {% url 'CurrentDiscountList' as url_CurrentDiscountList %}
+        {% url '/filter/CurrentDiscountList/manager/' as url_manager_CurrentDiscountList %}
         <a class="nav-link link-dark
-        {% if counterCurrent == 0%} disabled{% endif %}
+        {% if counterCurrent == 0 %} disabled{% endif %}
         {% if url_CurrentDiscountList in request.path %} active{% endif %}" 
-        href="/filter/CurrentDiscountList/{{ shop_id }}/">Действующие акции ({{ counterCurrent }})</a>
+        {% if url_manager_CurrentDiscountList in request.path %}href="/filter/CurrentDiscountList/manager/{{ id_manager }}/"{% else %}href="/filter/CurrentDiscountList/{{ shop_id }}/"{% endif %}>Действующие акции ({{ counterCurrent }})</a>
       </li>
       <li class="nav-item">
         <a class="nav-link disabled link-dark" href="#">Просроченные</a>

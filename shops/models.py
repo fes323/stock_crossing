@@ -4,6 +4,9 @@ from django.db import models
 class ShopManagers(models.Model):
     name = models.CharField(max_length=250, null=True, verbose_name='Руководить сети (акции)')
     phone = models.CharField(max_length=25, blank=True, default='+7', verbose_name='Телефон')
+    countFutureDiscount = models.IntegerField(default=0, verbose_name='Количество будущих акций')
+    countPastDiscount = models.IntegerField(default=0, verbose_name='Количество прошедших акций')
+    CountCurrentDiscount = models.IntegerField(default=0, verbose_name='Количество текущих акций')
 
     def __str__(self):
         return self.name

@@ -24,10 +24,10 @@ def startTomorrow(request):
     return render(request, template_name='discount_list.html', context=context)
 
 def startWithinAWeek(request):
-    now = datetime.now().date()
+    now = datetime.now().date() + timedelta(days=1)
     end_date = now + timedelta(days=7)
-    
-    discounts = DiscountData.objects.filter(startDate__range=[now, end_date])
+
+    discounts = DiscountData.objects.filter(startDate__range=[now, end_date]).order_by('startDate')
     
     page_obj = discounts
     
@@ -54,6 +54,7 @@ def searchDiscount(request):
 def discountList(request, shop_id=None):
     now = datetime.now()
     shopsList = Shop.objects.all().order_by('title')
+    managers = ShopManagers.objects.all().order_by('name')
     
     discountCurrent = DiscountData.objects.filter(startDate__lte=now).filter(endDate__gte=now).order_by('-startDate')
     discountsOld = DiscountData.objects.filter(startDate__lte=now).filter(endDate__lte=now).order_by('-startDate')
@@ -81,14 +82,59 @@ def discountList(request, shop_id=None):
         'counterCurrent' : discountCounterCurrent,
         'shopListItem' : shopsList,
         'page_obj' : page_obj,
+        'managers' : managers,
     }
     
     return render(request, template_name='discount_list.html', context=context)
 
-
-def discountListFilter(request, shop_id):
+def discountListFilterByManager(request, manager_id):
     now = datetime.now()
     shopsList = Shop.objects.all().order_by('title')
+    managers = ShopManagers.objects.all().order_by('name')
+    
+    currentManager = ShopManagers.objects.get(id=manager_id)
+
+    discountCurrent = DiscountData.objects.filter(startDate__lte=now).filter(manager__exact=manager_id).filter(endDate__gte=now).order_by('-startDate')
+    discountsOld = DiscountData.objects.filter(startDate__lte=now).filter(manager__exact=manager_id).filter(endDate__lte=now).order_by('-startDate')
+    discountsFuture = DiscountData.objects.filter(startDate__gte=now).filter(manager__exact=manager_id).order_by('startDate')
+    
+    discountCounter = discountsFuture.count()
+    discountCounterOld = discountsOld.count()
+    discountCounterCurrent = discountCurrent.count()
+    
+    if '/discountList' in request.path:
+        discounts = discountsFuture
+    elif '/OldDiscountList' in request.path:
+        discounts = discountsOld
+    elif '/CurrentDiscountList' in request.path:
+        discounts = discountCurrent
+    
+    id_manager = manager_id
+    
+    paginator = Paginator(discounts, 7)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'discounts' : discounts,
+        'counter' : discountCounter,
+        'counterOLd' : discountCounterOld,
+        'counterCurrent' : discountCounterCurrent,
+        'shopListItem' : shopsList,
+        'id_manager' : id_manager,
+        'currentManager' : currentManager,
+        'page_obj' : page_obj,
+        'managers' : managers,
+    }
+    
+    return render(request, template_name='filter_discount_list.html', context=context)
+
+
+
+def discountListFilterByShop(request, shop_id):
+    now = datetime.now()
+    shopsList = Shop.objects.all().order_by('title')
+    managers = ShopManagers.objects.all().order_by('name')
     
     currentShop = Shop.objects.get(id=shop_id)
 
@@ -122,6 +168,7 @@ def discountListFilter(request, shop_id):
         'shop_id' : id_shop,
         'currentShop' : currentShop,
         'page_obj' : page_obj,
+        'managers' : managers,
     }
     
     return render(request, template_name='filter_discount_list.html', context=context)
