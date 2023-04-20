@@ -31,7 +31,6 @@ class DiscountData(models.Model):
     description = models.TextField(max_length=1500, default='', blank=True, verbose_name='Описание')
     manager = models.ManyToManyField(ShopManagers)
     shops = models.ManyToManyField(Shop, verbose_name='магазины', related_name='shop')
-    files = models.FileField(blank=True, verbose_name='Файлы', )
     createDate = models.DateTimeField(null=True, auto_now_add=True, editable=False)
     isDone = models.BooleanField(default=False, verbose_name='Подготовлена')
     idDoneDate = models.DateField(default='2000-01-01')
@@ -47,4 +46,22 @@ class DiscountData(models.Model):
     class Meta:
         verbose_name = 'Акция'
         verbose_name_plural = 'Акции'
+        
+        
+class DiscountFiles(models.Model):
+    file = models.FileField(blank=True, verbose_name='Файлы', )
+    discount = models.ForeignKey(DiscountData, on_delete=models.CASCADE)
+        
 
+class BugsInDiscount(models.Model):
+    title = models.CharField(max_length=250, null=True, verbose_name='Название бага')
+    discount = models.ForeignKey(DiscountData, on_delete=models.CASCADE)
+    description = models.TextField(max_length=1500, default='', blank=True, verbose_name='Описание')
+    bugDateTime = models.DateTimeField(blank=True, default=None, verbose_name='Дата и время инцидента')
+    createDate = models.DateTimeField(null=True, auto_now_add=True, editable=False)
+    isFix = models.BooleanField(default=False, verbose_name='FIX')
+
+
+class GalleryFilesWhithErrors(models.Model):
+    file = models.FileField(blank=True, verbose_name='Файлы', )
+    bug = models.ForeignKey(BugsInDiscount, on_delete=models.CASCADE, verbose_name='баг')

@@ -202,16 +202,3 @@ def mainPage(request):
         
     }
     return render(request, template_name='main_page.html', context=context)
-
-
-def statistics(request):
-    discountCounter = DiscountData.objects.all().count()
-    futureDiscount = DiscountData.objects.filter(startDate__gte=timezone.now()).order_by('startDate').count()
-    oldDiscount = DiscountData.objects.filter(startDate__lte=timezone.now()).order_by('-startDate').count()
-    
-    context = {
-        "discountCounter" : discountCounter,
-        'futureDiscount' : futureDiscount,
-        'oldDiscount' : oldDiscount,
-    }
-    return render(request, 'statistics.html', context=context)

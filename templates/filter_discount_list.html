@@ -10,27 +10,33 @@
     <ul class="nav nav-tabs mt-2">
       <li class="nav-item">
         {% url 'discountList' as url_discountList %}
-        {% url '/filter/discountList/manager/' as url_manager_discountList %}
+        {% url 'manager/filter/discountList/' ShopManagers.id as url_manager_discountList %}
+        {% url 'shop/filter/discountList/' shop.id as url_filter_shop %}
         <a class="nav-link link-dark
         {% if counter == 0 %} disabled{% endif %}
-        {% if url_discountList in request.path %} active{% endif %}" aria-current="page" 
-        {% if url_manager_discountList in request.path %}href="/filter/discountList/manager/{{ id_manager }}/"{% else %}href="/filter/discountList/{{ shop_id }}/"{% endif %}>Будущие акции ({{ counter }})</a>
+        {% if url_discountList in request.path %} active{% endif %}"
+        {% if 'manager' in request.path %}href="{% url 'managerFilterDiscountList' id_manager %}"{% endif %}
+        {% if 'shop' in request.path %}href="{% url 'shopFilterDiscountList' shop_id %}"{% endif %}>Будущие акции ({{ counter }})</a>
       </li>
       <li class="nav-item">
         {% url 'OldDiscountList' as url_OldDiscountList %}
-        {% url '/filter/OldDiscountList/manager/' as url_manager_OldDiscountList %}
+        {% url 'manager/filter/OldDiscountList/' as url_manager_OldDiscountList %}
+        {% url 'shop/filter/OldDiscountList/' shop.id as url_OldDiscountList_filter_shop %}
         <a class="nav-link link-dark
         {% if counterOLd == 0 %} disabled{% endif %}
         {% if url_OldDiscountList in request.path %} active{% endif %}" 
-        {% if url_manager_OldDiscountList in request.path %}href="/filter/OldDiscountList/manager/{{ id_manager }}/"{% else %}href="/filter/OldDiscountList/{{ shop_id }}/"{% endif %}>Прошедшие ({{ counterOLd }})</a>
+        {% if 'manager' in request.path %}href="{% url 'managerFilterDiscountListOld' id_manager %}"{% endif %}
+        {% if 'shop'  in request.path %}href="{% url 'shopFilterDiscountListOld' shop_id %}"{% endif %}>Прошедшие ({{ counterOLd }})</a>
       </li>
       <li class="nav-item">
         {% url 'CurrentDiscountList' as url_CurrentDiscountList %}
-        {% url '/filter/CurrentDiscountList/manager/' as url_manager_CurrentDiscountList %}
+        {% url 'manager/filter/CurrentDiscountList/' as url_manager_CurrentDiscountList %}
+        {% url 'shop/filter/CurrentDiscountList/' shop.id as url_CurrentDiscountList_filter_shop %}
         <a class="nav-link link-dark
         {% if counterCurrent == 0 %} disabled{% endif %}
         {% if url_CurrentDiscountList in request.path %} active{% endif %}" 
-        {% if url_manager_CurrentDiscountList in request.path %}href="/filter/CurrentDiscountList/manager/{{ id_manager }}/"{% else %}href="/filter/CurrentDiscountList/{{ shop_id }}/"{% endif %}>Действующие акции ({{ counterCurrent }})</a>
+        {% if 'manager' in request.path %}href="{% url 'managerFilterDiscountListCurrent' id_manager %}"{% endif %}
+        {% if 'shop' in request.path %}href="{% url 'shopFilterDiscountListCurrent' shop_id %}"{% endif %}>Действующие акции ({{ counterCurrent }})</a>
       </li>
       <li class="nav-item">
         <a class="nav-link disabled link-dark" href="#">Просроченные</a>
@@ -55,20 +61,42 @@
       {% endfor %}
     </div>
     <div class="col-3 mt-1">
+      <div class="d-flex">
+        <form class="m-1" action="{% url 'discountList' %}" method="get">
+          <button type="submit" class="btn btn-outline-dark">Все акции</button>
+        </form>
+        <form class="m-1" action="{% url 'startTomorrow' %}" method="get">
+          <button type="submit" class="btn btn-outline-danger">Стартуют завтра</button>
+        </form>
+        <form class="m-1" action="{% url 'startWithinAWeek' %}" method="get">
+          <button type="submit" class="btn btn-outline-warning">В течение 7 дней</button>
+        </form>
+      </div>
       <h6>Выбор сети салонов</h6>
       <ul class="list-group">
         {% for shop in shopListItem %}
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <a class="link-dark" style="text-decoration: none;" 
-            href="{% if shop.countFutureDiscount != 0 %}/filter/discountList/{{ shop.id }}
-            {% elif shop.countPastDiscount != 0 %}/filter/OldDiscountList/{{ shop.id }}
-            {% else %}/filter/CurrentDiscountList/{{ shop.id }}{% endif %}">{{ shop.title }} 
-              (
-              {% if url_discountList in request.path %}{{shop.countFutureDiscount}}{% endif %}
-              {% if url_OldDiscountList in request.path %}{{shop.countPastDiscount}}{% endif %}
-              {% if url_CurrentDiscountList in request.path %}{{shop.CountCurrentDiscount}}{% endif %}
-              )
-            </a>
+          <li class="list-group-item d-flex align-items-center">
+            {% if url_discountList in request.path %}<span class="badge bg-secondary">{{shop.countFutureDiscount}}</span>{% endif %}
+            {% if url_OldDiscountList in request.path %}<span class="badge bg-secondary">{{shop.countPastDiscount}}</span>{% endif %}
+            {% if url_CurrentDiscountList in request.path %}<span class="badge bg-secondary">{{shop.CountCurrentDiscount}}</span>{% endif %}
+            <a class="link-dark" style="text-decoration: none; margin-left: 7px;" 
+            href="{% if shop.countFutureDiscount != 0 %}/shop/filter/discountList/{{ shop.id }}
+            {% elif shop.countPastDiscount != 0 %}/shop/filter/OldDiscountList/{{ shop.id }}
+            {% else %}/shop/filter/CurrentDiscountList/{{ shop.id }}{% endif %}">{{ shop.title }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      <h6 class="mt-2">Выбор менеджера</h6>
+      <ul class="list-group">
+        {% for manager in managers %}
+          <li class="list-group-item d-flex align-items-center">
+              {% if url_discountList in request.path %}<span class="badge bg-secondary">{{ manager.countFutureDiscount }}</span>{% endif %}
+              {% if url_OldDiscountList in request.path %}<span class="badge bg-secondary">{{ manager.countPastDiscount }}</span>{% endif %}
+              {% if url_CurrentDiscountList in request.path %}<span class="badge bg-secondary">{{ manager.CountCurrentDiscount }}</span>{% endif %}
+            <a class="link-dark" style="text-decoration: none; margin-left: 7px;" 
+            href="{% if manager.countFutureDiscount != 0 %}/manager/filter/discountList/{{ manager.id }}
+            {% elif manager.countPastDiscount != 0 %}/manager/filter/OldDiscountList/{{ manager.id }}
+            {% else %}/manager/filter/CurrentDiscountList/{{ manager.id }}{% endif %}">{{ manager.name }}</a> 
           </li>
         {% endfor %}
       </ul>
