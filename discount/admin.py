@@ -2,7 +2,7 @@ from django.contrib import admin
 from discount.models import BugsInDiscount, DiscountData, DiscountFiles, GalleryFilesWhithErrors
 from django.utils import timezone   
 
-from .forms import ManagersForm
+from .forms import DiscountForm, ManagersForm
 
 
 class DiscountFilesInline(admin.TabularInline):
@@ -15,8 +15,10 @@ class DiscountDataAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Основная информация', {'fields': ['title', 'id_DO', 'slug', 'startDate', 'endDate']}),
         ('Дополнительная', {'fields': ['description']}),
-        ('Служебная', {'fields': ['manager', 'shops', 'isDone', 'idDoneDate', ]})
+        ('Служебная', {'fields': ['manager', 'shops', 'idDoneDate', ]}),
     ]
+    list_filter = ['startDate', 'endDate', 'isDone']
+    search_fields = ['title', 'id_DO']
     prepopulated_fields = {"slug": ("title",)}
     form = ManagersForm
     inlines = [DiscountFilesInline,]
@@ -28,4 +30,8 @@ class GalleryFilesWhithErrors(admin.TabularInline):
 
 @admin.register(BugsInDiscount)    
 class BugsInDiscountAdmin(admin.ModelAdmin):
+    search_fields = ['title']
+    form = DiscountForm
     inlines = [GalleryFilesWhithErrors,]
+    
+    

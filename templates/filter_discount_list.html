@@ -47,7 +47,7 @@
     <div class="col-9">
       {% for discount in discounts %}
       <div class="list-group mt-1">
-          <a href="/discountList/{{ discount.slug }}" class="list-group-item list-group-item-action" aria-current="true">
+          <a href="/discountList/{{ discount.slug }}" class="list-group-item list-group-item-action">
             <div class="d-flex w-100 justify-content-between">
               <h5 class="mb-1">{{ discount.title }}</h5>
               <small>Create date:<br> {{ discount.createDate }}</small>

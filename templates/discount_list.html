@@ -2,12 +2,12 @@
 
 {% block content %}
 
-<div class="p-3 bg-light" style="width: 100%;">
+<div class="p-4 bg-light" style="width: 100%;">
 <h2 class="">Список акций</h2>
 
     <form class="form-inline my-2 my-lg-0 d-flex" action="{% url 'search_results' %}" method="get">
       <input name="q" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      <button class="btn btn-outline-success m-2" type="submit">Search</button>
     </form>
 
   <ul class="nav nav-tabs mt-2">
@@ -15,7 +15,7 @@
     </li>
     <li class="nav-item">
       {% url 'discountList' as url_discountList %}
-      <a class="nav-link link-dark {% if url_discountList in request.path %}active{% endif %}" aria-current="page" 
+      <a class="nav-link link-dark {% if url_discountList in request.path %}active{% endif %}"
       href="/discountList">Будущие акции <span class="badge bg-secondary">{{ counter }}</span></a>
     </li>
     <li class="nav-item">
@@ -34,7 +34,7 @@
   </ul>
 <div class="content" style="min-height: 79vh;">
 <div class="row">
-<div class="col-9">
+<div class="col">
   {% for discount in page_obj %}
   <div class="list-group mt-1">
       <a href="/discountList/{{ discount.slug }}" class="list-group-item list-group-item-action" aria-current="true">
@@ -53,7 +53,7 @@
   </div>  
   {% endfor %}
 </div>
-<div class="col-3 mt-1">
+<div class="col-3 mt-1 pr-5">
   <div class="d-flex">
     <form class="m-1" action="{% url 'discountList' %}" method="get">
       <button type="submit" class="btn btn-outline-dark">Все акции</button>
