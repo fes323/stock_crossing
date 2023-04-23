@@ -23,6 +23,7 @@ def startTomorrow(request):
     }
     return render(request, template_name='discount_list.html', context=context)
 
+
 def startWithinAWeek(request):
     now = datetime.now().date() + timedelta(days=1)
     end_date = now + timedelta(days=7)
@@ -37,6 +38,7 @@ def startWithinAWeek(request):
     }
     return render(request, template_name='discount_list.html', context=context)
 
+
 def searchDiscount(request):
     query = request.GET.get('q')
     discounts = DiscountData.objects.filter(
@@ -50,6 +52,7 @@ def searchDiscount(request):
         'page_obj' : page_obj,
     }
     return render(request, template_name='discount_list.html', context=context)
+
 
 def discountList(request, shop_id=None):
     now = datetime.now()
@@ -86,6 +89,7 @@ def discountList(request, shop_id=None):
     }
     
     return render(request, template_name='discount_list.html', context=context)
+
 
 def discountListFilterByManager(request, manager_id):
     now = datetime.now()
@@ -128,7 +132,6 @@ def discountListFilterByManager(request, manager_id):
     }
     
     return render(request, template_name='filter_discount_list.html', context=context)
-
 
 
 def discountListFilterByShop(request, shop_id):
