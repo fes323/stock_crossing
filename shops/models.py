@@ -6,7 +6,7 @@ class ShopManagers(models.Model):
     phone = models.CharField(max_length=25, blank=True, default='+7', verbose_name='Телефон')
     countFutureDiscount = models.IntegerField(default=0, verbose_name='Количество будущих акций')
     countPastDiscount = models.IntegerField(default=0, verbose_name='Количество прошедших акций')
-    CountCurrentDiscount = models.IntegerField(default=0, verbose_name='Количество текущих акций')
+    countCurrentDiscount = models.IntegerField(default=0, verbose_name='Количество текущих акций')
 
     def __str__(self):
         return self.name
@@ -21,7 +21,7 @@ class Shop(models.Model):
     manager = models.ManyToManyField(ShopManagers)
     countFutureDiscount = models.IntegerField(default=0, verbose_name='Количество будущих акций')
     countPastDiscount = models.IntegerField(default=0, verbose_name='Количество прошедших акций')
-    CountCurrentDiscount = models.IntegerField(default=0, verbose_name='Количество текущих акций')
+    countCurrentDiscount = models.IntegerField(default=0, verbose_name='Количество текущих акций')
 
     def __str__(self):
         return self.title

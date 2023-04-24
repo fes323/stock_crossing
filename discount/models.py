@@ -80,7 +80,7 @@ class DiscountData(models.Model):
     endDate = models.DateTimeField(blank=True, default=None, verbose_name='Дата окончания окончания')
     description = models.TextField(max_length=1500, default='', blank=True, verbose_name='Описание')
     type = models.ManyToManyField(DiscountType)
-    promocode = models.ManyToManyField(Promocode, blank=True, null=True)
+    promocode = models.ManyToManyField(Promocode)
     manager = models.ManyToManyField(ShopManagers)
     shops = models.ManyToManyField(Shop, verbose_name='магазины', related_name='shop')
     status = models.CharField(max_length=1, choices=STATUS, default='N')
