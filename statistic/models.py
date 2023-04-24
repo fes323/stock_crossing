@@ -1,6 +1,12 @@
 from django.db import models
 
 
-class CurrentDiscountPerDay(models.Model):
-    discountCounter = models.IntegerField(default=0, verbose_name='Количество акций')
-    day = models.DateField(unique=True, verbose_name='День')
+class ActiveDiscount(models.Model):
+    date = models.DateField(unique=True)
+    count = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return f"{self.date}: {self.count} акций"
+    class Meta:
+        verbose_name = 'Действующая акция'
+        verbose_name_plural = 'Действующие акции'

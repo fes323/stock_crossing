@@ -15,8 +15,9 @@ class DiscountDataAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Основная информация', {'fields': ['title', 'id_DO', 'slug', 'startDate', 'endDate']}),
         ('Дополнительная', {'fields': ['description']}),
-        ('Служебная', {'fields': ['manager', 'shops', 'type', 'promocode','status', 'idDoneDate', ]}),
+        ('Служебная', {'fields': ['manager', 'shops', 'type', 'promocode','status', 'idDoneDate', 'createDate']}),
     ]
+    readonly_fields = ['createDate', ]
     list_filter = ['startDate', 'endDate', 'isDone']
     search_fields = ['title', 'id_DO']
     prepopulated_fields = {"slug": ("title",)}

@@ -1,7 +1,10 @@
 from django.db import models
 from shops.models import ShopManagers, Shop
-from datetime import datetime
-            
+from datetime import datetime, timedelta
+from django.db.models import Count, F, Q
+
+from statistic.models import ActiveDiscount
+           
 
 def update_discount_counters():
         now = datetime.now()
@@ -28,6 +31,21 @@ def update_bug_counters():
             counter = BugsInDiscount.objects.filter(discount=discount).count()
             discount.bugCounter = counter
             discount.save()
+            
+            
+def update_active_discounts():
+    start_date = DiscountData.objects.earliest('startDate').startDate.date()
+    end_date = DiscountData.objects.latest('endDate').endDate.date()
+    
+    date_list = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+    
+    for date in date_list:
+        active_discounts = DiscountData.objects.filter(startDate__lte=date, endDate__gte=date)
+        count = active_discounts.count()
+
+        active_discount, created = ActiveDiscount.objects.get_or_create(date=date)
+        active_discount.count = count
+        active_discount.save()
 
 
 class PromocodeType(models.Model):
@@ -84,9 +102,7 @@ class DiscountData(models.Model):
     manager = models.ManyToManyField(ShopManagers)
     shops = models.ManyToManyField(Shop, verbose_name='магазины', related_name='shop')
     status = models.CharField(max_length=1, choices=STATUS, default='N')
-    
-    # Служебные поля
-    createDate = models.DateTimeField(null=True, auto_now_add=True, editable=False)
+    createDate = models.DateTimeField(null=True, auto_now_add=True)     
     idDoneDate = models.DateField(default='2000-01-01')
     slug = models.SlugField(blank=True, db_index=True, verbose_name='slug')
     bugCounter = models.IntegerField(default=0, verbose_name='Количество текущих акций')
@@ -99,11 +115,13 @@ class DiscountData(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         update_discount_counters()
+        update_active_discounts()
+        
 
     class Meta:
         verbose_name = 'Акция'
         verbose_name_plural = 'Акции'
-        
+           
         
 class DiscountFiles(models.Model):
     file = models.FileField(blank=True, verbose_name='Файлы', )
