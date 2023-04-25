@@ -31,7 +31,7 @@ class Statistic(TemplateView):
         todayBugCounter = self.bug.filter(createDate=self.now).count()
         
         # Блок "последнии акции"
-        lastDiscount = self.discountData.order_by('-createDate')[:6]
+        lastDiscount = self.discountData.order_by('-isDoneDate')[:6]
         
         # Блок "последний баг"
         lastBug = self.bug.latest('createDate')

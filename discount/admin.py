@@ -1,7 +1,7 @@
 from django.contrib import admin
-from discount.models import BugsInDiscount, DiscountData, DiscountFiles, DiscountType, GalleryFilesWhithErrors, Promocode, PromocodeType
+from discount.models import ActiveDiscount, BugsInDiscount, DiscountData, DiscountFiles, DiscountType, GalleryFilesWhithErrors, Promocode, PromocodeType
 
-from .forms import DiscountForm, ManagersForm
+from .forms import DiscountForm, DiscountListForm, ManagersForm
 
 
 class DiscountFilesInline(admin.TabularInline):
@@ -15,18 +15,20 @@ class DiscountDataAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Основная информация', {'fields': ['title', 'id_DO', 'slug', 'startDate', 'endDate']}),
         ('Дополнительная', {'fields': ['description']}),
-        ('Служебная', {'fields': ['manager', 'shops', 'type', 'promocode','status', 'idDoneDate', 'createDate']}),
+        ('Служебная', {'fields': ['manager', 'shops', 'type', 'promocode','status', 'isDoneDate', 'createDate']}),
     ]
-    readonly_fields = ['createDate', ]
+    readonly_fields = ['createDate', 'isDoneDate']
     list_filter = ['startDate', 'endDate', 'isDone']
     search_fields = ['title', 'id_DO']
     prepopulated_fields = {"slug": ("title",)}
     form = ManagersForm
     inlines = [DiscountFilesInline,]
     
+    
 class GalleryFilesWhithErrors(admin.TabularInline):
     fk_name = 'bug'
     model = GalleryFilesWhithErrors
+
 
 @admin.register(DiscountType)
 class DiscountTypeAdmin(admin.ModelAdmin):
@@ -39,13 +41,20 @@ class BugsInDiscountAdmin(admin.ModelAdmin):
     form = DiscountForm
     inlines = [GalleryFilesWhithErrors,]
  
+ 
 @admin.register(PromocodeType)
 class PromocodeTypeAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(Promocode)
 class PromocodeAdmin(admin.ModelAdmin):
     search_fields = ['promocode']
 
 
+@admin.register(ActiveDiscount)
+class ActiveDiscountAdmin(admin.ModelAdmin):
+    list_display = ['date', 'count']
+    search_fields = ['date']
     
+    form = DiscountListForm

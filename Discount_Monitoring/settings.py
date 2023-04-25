@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "debug_toolbar", # <- удалить в будущем
+    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'discount',
     'shops',
     'statistic',
@@ -51,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware", # <- удалить в будущем
 ]
 
 ROOT_URLCONF = 'Discount_Monitoring.urls'
@@ -73,6 +76,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Discount_Monitoring.wsgi.application'
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -111,9 +115,15 @@ LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'Europe/Moscow'
 
+DATE_INPUT_FORMATS = ('%d.%m.%Y','%Y.%m.%d')
+
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 
 # Static files (CSS, JavaScript, Images)
