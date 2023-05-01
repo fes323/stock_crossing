@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "debug_toolbar", # <- удалить в будущем
-    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'discount',
     'shops',
     'statistic',
@@ -73,10 +72,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'Discount_Monitoring.wsgi.application'
-
-X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

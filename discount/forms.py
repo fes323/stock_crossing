@@ -41,7 +41,7 @@ class DiscountForm(ModelForm):
     
     
 class DiscountListForm(ModelForm):
-    discount = forms.ModelMultipleChoiceField(
+    discount_data = forms.ModelMultipleChoiceField(
         queryset=DiscountData.objects.all(),
         widget=FilteredSelectMultiple('Акции', is_stacked=False)
     )

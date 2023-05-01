@@ -1,23 +1,31 @@
-from django.db import models
+from django.db import models, IntegrityError, transaction
 from datetime import datetime, timedelta
-from django.db.models import Count, F, Q
+from django.db.models.functions import Coalesce
+from django.db.models import Count, F, Q, Max
 
 from shops.models import *
 
 
+@transaction.atomic
 def update_active_discounts():
-    start_date = DiscountData.objects.earliest('startDate').startDate.date()
-    end_date = DiscountData.objects.latest('endDate').endDate.date()
-    
-    date_list = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
-    
-    for date in date_list:
-        active_discounts = DiscountData.objects.filter(startDate__lte=date, endDate__gte=date)
-        count = active_discounts.count()
-
-        active_discount, created = ActiveDiscount.objects.get_or_create(date=date)
-        active_discount.count = count
-        active_discount.save()
+    today = datetime.now().date()
+    shops = Shop.objects.all()
+    for shop in shops:
+        active_discounts = DiscountData.objects.filter(
+            shops__id=shop.id,
+            endDate__gte=today,
+            startDate__lte=today,
+        )
+        active_discounts_count = active_discounts.count()
+        active_discount, created = ActiveDiscount.objects.get_or_create(
+            date=today,
+            shop=shop,
+            defaults={'count': active_discounts_count}
+        )
+        if not created:
+            active_discount.count = active_discounts_count
+            active_discount.save()
+        active_discount.discount_data.set(active_discounts)
 
 def update_discount_counters():
         now = datetime.now()
@@ -138,7 +146,6 @@ class DiscountData(models.Model):
             update_active_discounts()
             update_discount_counters()
         
-
     class Meta:
         verbose_name = 'Акция'
         verbose_name_plural = 'Акции'
@@ -185,14 +192,14 @@ class GalleryFilesWhithErrors(models.Model):
 
 
 class ActiveDiscount(models.Model):
-    
-    date = models.DateField(unique=True)
+    date = models.DateField()
     count = models.IntegerField(default=0)
-    discount = models.ManyToManyField(DiscountData)
-    
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    discount_data = models.ManyToManyField(DiscountData)
+
     def __str__(self):
         return f"{self.date}: {self.count} акций"
-    
+
     class Meta:
         verbose_name = 'Действующая акция'
         verbose_name_plural = 'Действующие акции'

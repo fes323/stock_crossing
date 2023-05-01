@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
 
 <div class="container-fluid float-start p-4">
     <div class="row">
@@ -28,21 +33,23 @@
             </div>
         </div>
         <div class="col">
-            <div class="card text-dark" style="height: 100%;">
+            <div class="card text-dark" style="height:100%;">
                 <div class="card-header text-center">
-                    <h4>Топ по количеству дейстующих акций</h4>        
+                  <h4>Топ по количеству действующих акций</h4>        
                 </div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        {% for shop in topByNumberOfDiscount %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ shop.title }}
-                            <span class="badge bg-primary rounded-pill">{{ shop.countCurrentDiscount }}</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                <div style="height: 200px; overflow-y: scroll;">
+                  <ul class="list-group m-2">
+                    {% for shop in topByNumberOfDiscount %}
+                      <a href="shop/filter/discountList/{{ shop.id }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <span>{{ shop.title }}</span>
+                          <span class="badge bg-primary rounded-pill">{{ shop.countCurrentDiscount }}</span>
+                        </div>
+                      </a>
+                    {% endfor %}
+                  </ul>
                 </div>
-            </div>
+              </div>
         </div>
         <div class="col-3">
                 <div class="card text-dark">
@@ -71,30 +78,39 @@
         <div class="col-6" style="height: 500px;">
             <div class="card" style="height: 100%;">
                 <div class="card-body">
-                <h5 class="card-title">График количества акций на день</h5>
-                <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    <div id="container_1">
+                        
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-6" style="height: 500px;">
-            <div class="card" style="height: 70%;">
-                <div class="card-body">
-                <h5 class="card-title">Хронология создания акций</h5>
+            <div class="card" style="height: 70%; ">
+                <div class="card-header text-center">
+                    <h5 class="card-title">Хронология создания акций</h5>    
+                </div>
+                <div class="m-2" style="overflow: auto;">
                     <ul class="list-group">
                         {% for discount in lastDiscount %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ discount.title }}
-                            <span class="badge bg-primary rounded-pill">{{ discount.startDate }}</span>
-                        </li>
+                            <a href="/discountList/{{ discount.slug }}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>{{ discount.title }}</span>
+                                    <span class="badge bg-primary rounded-pill">{{ discount.startDate }}</span>
+                                </div>
+                            </a>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
             <div class="card mt-4" style="height: 25%;">
-                <div class="card-body">
-                <h5 class="card-title">Последний баг:</h5>
-                <h6 class="card-text">Ошибка: {{ lastBug.title }}</h6>
-                <p class="card-text">{% for discount in lastBug.discount.all %}{{ discount }}{% endfor %}</p>
+                <div class="m-2">
+                    <h5>Последний баг:</h5>
+                    <a href="/discountList/{{ lastBug.slug }}" class="list-group-item list-group-item-action">
+                        <div>
+                            <h6 class="card-text">Ошибка: {{ lastBug.title }}</h6>
+                            <p class="card-text">{% for discount in lastBug.discount.all %}{{ discount }}{% endfor %}</p>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
@@ -109,4 +125,64 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    Highcharts.chart('container_1', {
+        title: {
+            text: 'График количества акций',
+            align: 'center'
+        },
+        yAxis: {
+            title: {
+                text: 'Количество акций'
+            }
+        },
+        xAxis: {
+            type: 'datetime',
+            tickInterval: 24 * 3600 * 1000,
+            min: Date.now() - 15 * 24 * 3600 * 1000,
+            max: Date.now() + 15 * 24 * 3600 * 1000,
+            labels: {
+                formatter: function() {
+                    return Highcharts.dateFormat('%e %b', this.value);
+                }
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+        plotOptions: {
+            series: {
+                label: {
+                    connectorAllowed: false
+                },
+                pointStart: 01
+            }
+        },
+        series: [{
+            name: 'Количество действующих акций',
+            data: {{ data }},
+        }],
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+    });
+</script>
+
+
+
+
 {% endblock %}
