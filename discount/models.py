@@ -28,7 +28,7 @@ def update_discount_counters():
             current_discounts = DiscountData.objects.filter(shops=shop, startDate__lte=now, endDate__gte=now).count()
             shop.countFutureDiscount = future_discounts
             shop.countPastDiscount = past_discounts
-            shop.CountCurrentDiscount = current_discounts
+            shop.countCurrentDiscount = current_discounts
             shop.save()
         for manager in ShopManagers.objects.all():
             future_discounts = DiscountData.objects.filter(manager=manager, startDate__gt=now).count()
@@ -36,14 +36,22 @@ def update_discount_counters():
             current_discounts = DiscountData.objects.filter(manager=manager, startDate__lte=now, endDate__gte=now).count()
             manager.countFutureDiscount = future_discounts
             manager.countPastDiscount = past_discounts
-            manager.CountCurrentDiscount = current_discounts
+            manager.countCurrentDiscount = current_discounts
             manager.save()
 
 def update_bug_counters():
-    for discount in DiscountData.objects.filter(discount=discount):
-            counter = BugsInDiscount.objects.filter(discount=discount).count()
-            discount.bugCounter = counter
-            discount.save()
+    discounts = DiscountData.objects.annotate(
+        bug_counter=Count('bugsindiscount')
+    )
+    
+    # Извлекаем только записи, в которых количество багов изменилось
+    updated_discounts = []
+    for discount in discounts:
+        if discount.bugCounter != discount.bug_counter:
+            discount.bugCounter = F('bug_counter')
+            updated_discounts.append(discount)
+            
+    DiscountData.objects.bulk_update(updated_discounts, ['bugCounter'])
     
             
 class PromocodeType(models.Model):
@@ -110,7 +118,7 @@ class DiscountData(models.Model):
     description = models.TextField(max_length=1500, blank=True, null=True, verbose_name='Описание')
     discountSum = models.CharField(max_length=250, blank=True, null=True, verbose_name='Значение скидки (процент/сумма/баллы)')
     summation = models.CharField(max_length=1, choices=SUMMATION, default='N')
-    discountThreshold = models.IntegerField(blank=True, null=True, verbose_name='Порог скидки')
+    discountThreshold = models.PositiveIntegerField(null=True, blank=True, verbose_name='Порог скидки')
     discountThresholdType = models.CharField(max_length=1, choices=THRESHOLDTYPE, default='N')
     type = models.CharField(max_length=1, choices=DISCOUNT_TUPE, default='P', verbose_name='Тип акции')
     promocode = models.ManyToManyField(Promocode, blank=True, null=True, )
@@ -175,7 +183,7 @@ class BugsInDiscount(models.Model):
     ]
     
     title = models.CharField(max_length=250, null=True, verbose_name='Название бага')
-    discount = models.ManyToManyField(DiscountData, blank=True, null=True)
+    discount = models.ManyToManyField(DiscountData, blank=True)
     description = models.TextField(max_length=1500, verbose_name='Описание')
     bugDateTime = models.DateTimeField(default=None, verbose_name='Дата и время инцидента')
     createDate = models.DateTimeField(auto_now_add=True, editable=False)

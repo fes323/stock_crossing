@@ -123,12 +123,23 @@
             </div>
         </div>
     </div>
+    <div class="row mt-4">
+        <div class="col-12" style="height: 425px;">
+            <div class="card" style="height: 100%;">
+                <div class="card-body">
+                    <div id="container_2">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script type="text/javascript">
     Highcharts.chart('container_1', {
         title: {
-            text: 'График количества акций',
+            text: 'Количество действующих акций',
             align: 'center'
         },
         yAxis: {
@@ -162,7 +173,7 @@
         },
         series: [{
             name: 'Количество действующих акций',
-            data: {{ data }},
+            data: {{ discount_data }},
         }],
         responsive: {
             rules: [{
@@ -181,7 +192,106 @@
     });
 </script>
 
-
-
+<script type="text/javascript">
+    var data = JSON.parse('{{ data | safe }}');
+    drawChart(data);
+    function drawChart(data) {
+        Highcharts.chart('container_2', {
+            chart: {
+            type: 'column'
+            },
+            title: {
+            align: 'left',
+            text: 'Действующие акции по магазинам'
+            },
+            xAxis: {
+            type: 'category'
+            },
+            yAxis: {
+            title: {
+                text: 'Количество текущих акций'
+            }
+            },
+            legend: {
+            enabled: false
+            },
+            plotOptions: {
+            series: {
+                borderWidth: 0,
+                dataLabels: {
+                enabled: true,
+                format: '{point.y:.0f}'
+                }
+            }
+            },
+            series: [{
+            name: 'Магазины',
+            colorByPoint: true,
+            data: data,
+            }]
+        });
+    }
+</script>
 
 {% endblock %}
+
+
+<!-- добавление багов на будущее
+<script type="text/javascript">
+    Highcharts.chart('container_1', {
+        title: {
+            text: 'График количества акций и багов',
+            align: 'center'
+        },
+        yAxis: {
+            title: {
+                text: 'Количество'
+            }
+        },
+        xAxis: {
+            type: 'datetime',
+            tickInterval: 24 * 3600 * 1000,
+            min: Date.now() - 15 * 24 * 3600 * 1000,
+            max: Date.now() + 15 * 24 * 3600 * 1000,
+            labels: {
+                formatter: function() {
+                    return Highcharts.dateFormat('%e %b', this.value);
+                }
+            }
+        },
+        legend: {
+            layout: 'vertical',
+            align: 'right',
+            verticalAlign: 'middle'
+        },
+        plotOptions: {
+            series: {
+                label: {
+                    connectorAllowed: false
+                },
+                pointStart: 01
+            }
+        },
+        series: [{
+            name: 'Количество действующих акций',
+            data: {{ discount_data }},
+        }, {
+            name: 'Количество багов в день',
+            data: {{ bug_data }},
+        }],
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        layout: 'horizontal',
+                        align: 'center',
+                        verticalAlign: 'bottom'
+                    }
+                }
+            }]
+        }
+    });
+</script> -->
