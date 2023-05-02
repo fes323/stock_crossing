@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.forms import ModelForm
 
-from .models import ActiveDiscount, BugsInDiscount, DiscountData, DiscountType, Promocode
+from .models import ActiveDiscount, BugsInDiscount, DiscountData, Promocode
 from shops.models import ShopManagers, Shop
 
 
@@ -14,12 +14,7 @@ class ManagersForm(ModelForm):
     shops = forms.ModelMultipleChoiceField(
         queryset=Shop.objects.all(),
         widget=FilteredSelectMultiple('Менеджеры', is_stacked=False)
-    )
-    type = forms.ModelMultipleChoiceField(
-        queryset=DiscountType.objects.all(),
-        widget=FilteredSelectMultiple('Тип скидки', is_stacked=False)
-    )
-    
+    ) 
     promocode = forms.ModelMultipleChoiceField(
         queryset=Promocode.objects.all(),
         widget=FilteredSelectMultiple('Промокод', is_stacked=False)

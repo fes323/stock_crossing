@@ -36,31 +36,6 @@ class Statistic(TemplateView):
         todayBugCounter = self.bug.filter(createDate=self.now).count()
         
         # Блок графика
-        # Получаем список всех магазинов
-        shops = Shop.objects.all()
-
-        # Формируем список с данными для каждого магазина
-        data = []
-        for shop in shops:
-            # Получаем список акций для текущего магазина на последние 30 дней
-            discounts = ActiveDiscount.objects.filter(
-                shop=shop, date__gte=now().date() - timedelta(days=30)
-            )
-
-            # Группируем акции по дате и считаем их количество
-            counts = discounts.annotate(
-                date_trunc_day=TruncDay("date")
-            ).values("date_trunc_day").annotate(
-                total=Sum("count")
-            ).values_list("date_trunc_day", "total")
-
-            # Добавляем данные магазина в общий список данных
-            data.append(
-                {
-                    "name": shop.title,
-                    "data": counts,
-                }
-            )
         
         # Блок "последнии акции"
         lastDiscount = self.discountData.order_by('-createDate')[:10]
@@ -78,8 +53,6 @@ class Statistic(TemplateView):
             'totalBugCounter' : totalBugCounter,
             'fixBugCounter' : fixBugCounter,
             'todayBugCounter' : todayBugCounter,
-            
-            'data': data,
             
             'lastDiscount' : lastDiscount,
             

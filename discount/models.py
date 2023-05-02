@@ -6,26 +6,19 @@ from django.db.models import Count, F, Q, Max
 from shops.models import *
 
 
-@transaction.atomic
 def update_active_discounts():
-    today = datetime.now().date()
-    shops = Shop.objects.all()
-    for shop in shops:
-        active_discounts = DiscountData.objects.filter(
-            shops__id=shop.id,
-            endDate__gte=today,
-            startDate__lte=today,
-        )
-        active_discounts_count = active_discounts.count()
-        active_discount, created = ActiveDiscount.objects.get_or_create(
-            date=today,
-            shop=shop,
-            defaults={'count': active_discounts_count}
-        )
-        if not created:
-            active_discount.count = active_discounts_count
-            active_discount.save()
-        active_discount.discount_data.set(active_discounts)
+    start_date = DiscountData.objects.earliest('startDate').startDate.date()
+    end_date = DiscountData.objects.latest('endDate').endDate.date()
+
+    date_list = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+
+    for date in date_list:
+        active_discounts = DiscountData.objects.filter(startDate__lte=date, endDate__gte=date)
+        count = active_discounts.count()
+
+        active_discount, created = ActiveDiscount.objects.get_or_create(date=date)
+        active_discount.count = count
+        active_discount.save()
 
 def update_discount_counters():
         now = datetime.now()
@@ -76,20 +69,7 @@ class Promocode(models.Model):
 
     class Meta:
         verbose_name = 'Промокод'
-        verbose_name_plural = 'Промокоды'
-
-
-class DiscountType(models.Model):
-    
-    title = models.CharField(max_length=250, verbose_name='Тип скидки')
-    
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        verbose_name = 'Тип акции'
-        verbose_name_plural = 'Тип акций'
-    
+        verbose_name_plural = 'Промокоды' 
                 
 class DiscountData(models.Model):
     
@@ -100,22 +80,49 @@ class DiscountData(models.Model):
         ('D', 'Релиз'),
     ]
     
+    SUMMATION = [
+        ('N', 'Не суммируется с ПЛ'),
+        ('S', 'Суммируется с ПЛ на строку'),
+        ('P', 'Суммируется с ПЛ на документ'),
+        ('B', 'Суммируется с ДК, но не суммируется с ДР'),
+    ]
+    
+    THRESHOLDTYPE = [
+        ('P', 'Порог с учетом ПЛ'),
+        ('F', 'Порог без учета ПЛ'),
+        ('N', 'Без порога'),
+    ]
+    
+    DISCOUNT_TUPE = [
+        ('P', 'Скидка процентом'),
+        ('S', 'Скидка суммой'),
+        ('B', 'Бонусные баллы'),
+        ('L', 'Потеряшки'),
+        ('C', 'Кэшбек'),
+        ('G', 'Подарок'),
+    ]
+    
     #Основные поля
     title = models.CharField(max_length=250, null=True, db_index=True, verbose_name='Название скидки')
-    id_DO = models.IntegerField(blank=True, default=None, db_index=True, verbose_name='ID акции в ДО')
-    startDate = models.DateTimeField(blank=True, default=None, verbose_name='Дата начала акции')
-    endDate = models.DateTimeField(blank=True, default=None, verbose_name='Дата окончания окончания')
-    description = models.TextField(max_length=1500, default='', blank=True, verbose_name='Описание')
-    type = models.ManyToManyField(DiscountType)
-    promocode = models.ManyToManyField(Promocode)
-    manager = models.ManyToManyField(ShopManagers)
+    id_DO = models.IntegerField(db_index=True, verbose_name='ID акции в ДО')
+    startDate = models.DateTimeField(verbose_name='Дата начала акции')
+    endDate = models.DateTimeField(verbose_name='Дата окончания окончания')
+    description = models.TextField(max_length=1500, blank=True, null=True, verbose_name='Описание')
+    discountSum = models.CharField(max_length=250, blank=True, null=True, verbose_name='Значение скидки (процент/сумма/баллы)')
+    summation = models.CharField(max_length=1, choices=SUMMATION, default='N')
+    discountThreshold = models.IntegerField(blank=True, null=True, verbose_name='Порог скидки')
+    discountThresholdType = models.CharField(max_length=1, choices=THRESHOLDTYPE, default='N')
+    type = models.CharField(max_length=1, choices=DISCOUNT_TUPE, default='P', verbose_name='Тип акции')
+    promocode = models.ManyToManyField(Promocode, blank=True, null=True, )
+    manager = models.ManyToManyField(ShopManagers, verbose_name='менеджер', related_name='manager')
     shops = models.ManyToManyField(Shop, verbose_name='магазины', related_name='shop')
+    segment = models.BooleanField(default=False, verbose_name='Формирование сегмента')
     
     #Служебные поля
     status = models.CharField(max_length=1, choices=STATUS, default='N')
-    createDate = models.DateTimeField(null=True, auto_now_add=True)     
-    isDoneDate = models.DateField(default='2000-01-01')
-    slug = models.SlugField(blank=True, db_index=True, verbose_name='slug')
+    createDate = models.DateTimeField(auto_now_add=True)     
+    isDoneDate = models.DateField()
+    slug = models.SlugField(db_index=True, verbose_name='slug')
     bugCounter = models.IntegerField(default=0, verbose_name='Количество текущих акций')
     isDone = models.BooleanField(default=False, verbose_name='Подготовлена')
     
@@ -152,7 +159,7 @@ class DiscountData(models.Model):
            
         
 class DiscountFiles(models.Model):
-    file = models.FileField(blank=True, verbose_name='Файлы', )
+    file = models.FileField(verbose_name='Файлы')
     discount = models.ForeignKey(DiscountData, on_delete=models.CASCADE)
         
         
@@ -168,10 +175,10 @@ class BugsInDiscount(models.Model):
     ]
     
     title = models.CharField(max_length=250, null=True, verbose_name='Название бага')
-    discount = models.ManyToManyField(DiscountData)
-    description = models.TextField(max_length=1500, default='', blank=True, verbose_name='Описание')
-    bugDateTime = models.DateTimeField(blank=True, default=None, verbose_name='Дата и время инцидента')
-    createDate = models.DateTimeField(null=True, auto_now_add=True, editable=False)
+    discount = models.ManyToManyField(DiscountData, blank=True, null=True)
+    description = models.TextField(max_length=1500, verbose_name='Описание')
+    bugDateTime = models.DateTimeField(default=None, verbose_name='Дата и время инцидента')
+    createDate = models.DateTimeField(auto_now_add=True, editable=False)
     status = models.CharField(max_length=1, choices=STATUS, default='N')
     
     def __str__(self):
@@ -187,15 +194,13 @@ class BugsInDiscount(models.Model):
 
 
 class GalleryFilesWhithErrors(models.Model):
-    file = models.FileField(blank=True, verbose_name='Файлы', )
+    file = models.FileField(verbose_name='Файлы')
     bug = models.ForeignKey(BugsInDiscount, on_delete=models.CASCADE, verbose_name='баг')
 
 
 class ActiveDiscount(models.Model):
-    date = models.DateField()
+    date = models.DateField(unique=True)
     count = models.IntegerField(default=0)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    discount_data = models.ManyToManyField(DiscountData)
 
     def __str__(self):
         return f"{self.date}: {self.count} акций"

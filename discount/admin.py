@@ -1,5 +1,5 @@
 from django.contrib import admin
-from discount.models import ActiveDiscount, BugsInDiscount, DiscountData, DiscountFiles, DiscountType, GalleryFilesWhithErrors, Promocode, PromocodeType
+from discount.models import ActiveDiscount, BugsInDiscount, DiscountData, DiscountFiles, GalleryFilesWhithErrors, Promocode, PromocodeType
 
 from .forms import DiscountForm, DiscountListForm, ManagersForm
 
@@ -14,8 +14,8 @@ class DiscountDataAdmin(admin.ModelAdmin):
     list_display = ['title', 'id_DO', 'startDate', 'endDate', 'isDone']
     fieldsets = [
         ('Основная информация', {'fields': ['title', 'id_DO', 'slug', 'startDate', 'endDate']}),
-        ('Дополнительная', {'fields': ['description']}),
-        ('Служебная', {'fields': ['manager', 'shops', 'type', 'promocode','status', 'isDoneDate', 'createDate']}),
+        ('Дополнительная', {'fields': ['description', 'type', 'discountSum', 'summation', 'discountThreshold', 'discountThresholdType', 'segment',]}),
+        ('Служебная', {'fields': ['manager', 'shops', 'promocode', 'status', 'isDoneDate', 'createDate']}),
     ]
     readonly_fields = ['createDate', 'isDoneDate']
     list_filter = ['startDate', 'endDate', 'isDone']
@@ -28,11 +28,6 @@ class DiscountDataAdmin(admin.ModelAdmin):
 class GalleryFilesWhithErrors(admin.TabularInline):
     fk_name = 'bug'
     model = GalleryFilesWhithErrors
-
-
-@admin.register(DiscountType)
-class DiscountTypeAdmin(admin.ModelAdmin):
-    search_fields = ['title']
  
  
 @admin.register(BugsInDiscount)    
