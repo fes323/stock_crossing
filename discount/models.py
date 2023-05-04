@@ -48,7 +48,7 @@ def update_bug_counters():
     updated_discounts = []
     for discount in discounts:
         if discount.bugCounter != discount.bug_counter:
-            discount.bugCounter = F('bug_counter')
+            discount.bugCounter = F('bugCounter')
             updated_discounts.append(discount)
             
     DiscountData.objects.bulk_update(updated_discounts, ['bugCounter'])
@@ -108,6 +108,7 @@ class DiscountData(models.Model):
         ('L', 'Потеряшки'),
         ('C', 'Кэшбек'),
         ('G', 'Подарок'),
+        ('W', 'Лотерея')
     ]
     
     #Основные поля
@@ -129,7 +130,7 @@ class DiscountData(models.Model):
     #Служебные поля
     status = models.CharField(max_length=1, choices=STATUS, default='N')
     createDate = models.DateTimeField(auto_now_add=True)     
-    isDoneDate = models.DateField()
+    isDoneDate = models.DateField(blank=True, null=True)
     slug = models.SlugField(db_index=True, verbose_name='slug')
     bugCounter = models.IntegerField(default=0, verbose_name='Количество текущих акций')
     isDone = models.BooleanField(default=False, verbose_name='Подготовлена')
@@ -183,7 +184,7 @@ class BugsInDiscount(models.Model):
     ]
     
     title = models.CharField(max_length=250, null=True, verbose_name='Название бага')
-    discount = models.ManyToManyField(DiscountData, blank=True)
+    discount = models.ManyToManyField(DiscountData, blank=True, null=True)
     description = models.TextField(max_length=1500, verbose_name='Описание')
     bugDateTime = models.DateTimeField(default=None, verbose_name='Дата и время инцидента')
     createDate = models.DateTimeField(auto_now_add=True, editable=False)
