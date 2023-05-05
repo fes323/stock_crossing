@@ -11,14 +11,14 @@ class DiscountFilesInline(admin.TabularInline):
 
 @admin.register(DiscountData)
 class DiscountDataAdmin(admin.ModelAdmin):
-    list_display = ['title', 'id_DO', 'startDate', 'endDate', 'isDone']
+    list_display = ['title', 'id_DO', 'startDate', 'endDate', 'createDate', 'isDone']
     fieldsets = [
         ('Основная информация', {'fields': ['title', 'id_DO', 'slug', 'startDate', 'endDate']}),
         ('Дополнительная', {'fields': ['description', 'type', 'discountSum', 'summation', 'discountThreshold', 'discountThresholdType', 'segment',]}),
         ('Служебная', {'fields': ['manager', 'shops', 'promocode', 'status', 'isDoneDate', 'createDate']}),
     ]
     readonly_fields = ['createDate', 'isDoneDate']
-    list_filter = ['startDate', 'endDate', 'isDone']
+    list_filter = ['startDate', 'endDate', 'createDate', 'isDone',]
     search_fields = ['title', 'id_DO']
     prepopulated_fields = {"slug": ("title",)}
     form = ManagersForm
