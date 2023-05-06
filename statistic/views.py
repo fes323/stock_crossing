@@ -59,7 +59,7 @@ class Statistic(TemplateView):
             bug_data.append([timestamp, value])
             
         # Блок "последнии акции"
-        lastDiscount = self.discountData.order_by('-createDate')[:10]
+        lastDiscount = self.discountData.order_by('-startDate')[:10]
         
         # Блок "последний баг"
         lastBug = self.bug.latest('createDate')
