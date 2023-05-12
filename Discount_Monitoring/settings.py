@@ -22,6 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-vtc*5zn^hzsa=6%7@z4zsd2q423bv-8-yn$7%nc+7j!h*(!5+6'
 
+BOT_TOKEN = '6203357564:AAFpH9LoiuzKeoPSdkY-OtcufGObJV-uU9k'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
     'shops',
     'statistic',
     'calandary',
+    'discount_bot',
 ]
 
 MIDDLEWARE = [
